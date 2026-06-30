@@ -1,0 +1,31 @@
+{
+  "target": "192.168.1.10",
+  "ip": "192.168.1.10",
+  "scanned_at": "2026-06-30T03:38:45.196447+00:00",
+  "results": [
+    {
+      "port": 22,
+      "is_open": false,
+      "service_name": "ssh",
+      "banner": null
+    },
+    {
+      "port": 80,
+      "is_open": false,
+      "service_name": "http",
+      "banner": null
+    },
+    {
+      "port": 443,
+      "is_open": false,
+      "service_name": "https",
+      "banner": null
+    },
+    {
+      "port": 3389,
+      "is_open": false,
+      "service_name": "rdp",
+      "banner": null
+    }
+  ]
+}

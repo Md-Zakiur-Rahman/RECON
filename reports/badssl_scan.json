@@ -1,0 +1,19 @@
+{
+  "target": "badssl.com",
+  "ip": "104.154.89.105",
+  "scanned_at": "2026-06-30T03:39:26.107450+00:00",
+  "results": [
+    {
+      "port": 80,
+      "is_open": true,
+      "service_name": "http",
+      "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.10.3 (Ubuntu)\r\nDate: Tue, 30 Jun 2026 03:39:25 GMT\r\nContent-Type: text/html\r\nContent-Length: 612\r\nLast-Modified: Wed, 16 May 2018 02:25:12 GMT\r\nConnection: close\r\nETag: \"5afb9688-264\"\r\nAccept-Ranges: bytes"
+    },
+    {
+      "port": 443,
+      "is_open": false,
+      "service_name": "https",
+      "banner": null
+    }
+  ]
+}

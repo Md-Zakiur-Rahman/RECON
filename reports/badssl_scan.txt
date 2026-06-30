@@ -1,0 +1,15 @@
+Target: badssl.com
+Resolved IP: 104.154.89.105
+Scanned At (UTC): 2026-06-30T03:39:26.107450+00:00
+
+Results:
+- 80/tcp open service=http banner="HTTP/1.1 200 OK
+Server: nginx/1.10.3 (Ubuntu)
+Date: Tue, 30 Jun 2026 03:39:25 GMT
+Content-Type: text/html
+Content-Length: 612
+Last-Modified: Wed, 16 May 2018 02:25:12 GMT
+Connection: close
+ETag: "5afb9688-264"
+Accept-Ranges: bytes"
+- 443/tcp closed service=https

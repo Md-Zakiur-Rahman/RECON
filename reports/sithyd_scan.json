@@ -1,0 +1,19 @@
+{
+  "target": "sithyd.edu.in",
+  "ip": "13.203.148.119",
+  "scanned_at": "2026-06-30T03:36:26.132042+00:00",
+  "results": [
+    {
+      "port": 80,
+      "is_open": true,
+      "service_name": "http",
+      "banner": "HTTP/1.1 200 OK\r\nDate: Tue, 30 Jun 2026 03:36:26 GMT\r\nServer: Apache\r\nLast-Modified: Mon, 18 May 2026 15:56:26 GMT\r\nAccept-Ranges: bytes\r\nContent-Length: 163\r\nCache-Control: no-cache, no-store, must-revalidate\r\nPragma: no-cache\r\nExpires: 0\r\nConnection: close\r\nContent-Type: text/html"
+    },
+    {
+      "port": 443,
+      "is_open": true,
+      "service_name": "https",
+      "banner": null
+    }
+  ]
+}
