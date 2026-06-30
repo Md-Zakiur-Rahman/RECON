@@ -1,9 +1,0 @@
-Target: 192.168.1.10
-Resolved IP: 192.168.1.10
-Scanned At (UTC): 2026-06-30T03:38:45.196447+00:00
-
-Results:
-- 22/tcp closed service=ssh
-- 80/tcp closed service=http
-- 443/tcp closed service=https
-- 3389/tcp closed service=rdp
