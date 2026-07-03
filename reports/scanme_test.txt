@@ -1,0 +1,19 @@
+RECON Scan Report
+Targets: scanme.nmap.org
+Scanned At (UTC): 2026-07-03T17:30:16.514122+00:00
+Duration (seconds): 1.05
+Hosts Scanned: 1
+Hosts Alive: 1
+Hosts Unresponsive: 0
+Total Open Ports: 2
+Total Closed Ports: 1
+Average Open Ports Per Alive Host: 2.00
+
+Hosts:
+
+scanme.nmap.org (45.33.32.156)
+  Status: alive
+  Open Ports: 2
+  - 22/tcp open service=ssh banner="SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2.13"
+  - 80/tcp open service=http banner="HTTP/1.1 200 OK | Date: Fri, 03 Jul 2026 17:30:17 GMT | Server: Apache/2.4.7 (Ubuntu) | Accept-Ranges: bytes | Vary: Accept-Encoding | Connection: close | Content-Type: text/html"
+  - 443/tcp closed service=https

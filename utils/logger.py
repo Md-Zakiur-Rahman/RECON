@@ -4,9 +4,13 @@ import logging
 def setup_logger(verbose=False):
     level = logging.DEBUG if verbose else logging.INFO
 
-    logging.basicConfig(
-        level=level,
-        format="%(levelname)s - %(message)s"
-    )
+    logger = logging.getLogger("recon")
+    logger.handlers.clear()
+    logger.setLevel(level)
+    logger.propagate = False
 
-    return logging.getLogger("recon")
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+    logger.addHandler(handler)
+
+    return logger

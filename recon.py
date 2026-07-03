@@ -1,30 +1,49 @@
 import argparse
 from pathlib import Path
 
-from core.exceptions import ResolutionError
 from core.report import save_report
-from core.scanner import parse_ports, scan_ports
-from utils.config import DEFAULT_PORTS, DEFAULT_TIMEOUT
+from core.scanner import parse_ports, scan_targets
+from utils.config import (
+    DEFAULT_MAX_WORKERS,
+    DEFAULT_PORTS,
+    DEFAULT_SCAN_DELAY,
+    DEFAULT_TIMEOUT,
+)
 from utils.logger import setup_logger
-from utils.resolver import resolve_target
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="RECON - Reconnaissance, Enumeration and Connectivity Toolkit"
     )
-    parser.add_argument("command", choices=["scan"], help="Command to execute")
-    parser.add_argument("target", help="Target hostname or IP address")
+    parser.add_argument("command", choices=["scan"], help="Command to run")
+    parser.add_argument(
+        "targets",
+        nargs="+",
+        help="One or more hostnames, IP addresses, or a CIDR range",
+    )
     parser.add_argument(
         "--ports",
         default=DEFAULT_PORTS,
-        help="Ports to scan, for example: 22,80,443 or 1-1024",
+        help="Ports to scan, for example 22,80,443 or 1-1024",
     )
     parser.add_argument(
         "--timeout",
         type=float,
         default=DEFAULT_TIMEOUT,
         help="Socket timeout in seconds",
+    )
+    parser.add_argument(
+        "--threads",
+        type=int,
+        default=DEFAULT_MAX_WORKERS,
+        help="Maximum concurrent port scan threads per host",
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=DEFAULT_SCAN_DELAY,
+        help="Optional delay before each port probe in seconds",
     )
     parser.add_argument(
         "--save",
@@ -45,51 +64,112 @@ def resolve_output_path(save_value: str | None) -> Path | None:
     return Path(save_value)
 
 
-def main():
+def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     logger = setup_logger(args.verbose)
 
     try:
-        ip = resolve_target(args.target)
         ports = parse_ports(args.ports)
+        validate_scan_args(args)
 
-        logger.info(f"Target: {args.target}")
-        logger.info(f"Resolved IP: {ip}")
-        results = scan_ports(ip=ip, ports=ports, timeout=args.timeout, logger=logger)
+        log_scan_start(logger, args)
+        report = scan_targets(
+            targets=args.targets,
+            ports=ports,
+            timeout=args.timeout,
+            max_workers=args.threads,
+            delay=args.delay,
+            logger=logger,
+        )
 
-        for result in results:
-            state = "open" if result.is_open else "closed"
-            if result.is_open:
-                message = (
-                    f"Port {result.port}/tcp {state}"
-                    f" service={result.service_name}"
-                )
-                if result.banner:
-                    message += f' banner="{result.banner}"'
-                logger.info(message)
-            else:
-                logger.debug(f"Port {result.port}/tcp {state}")
+        for host in report.hosts:
+            log_host_result(logger, host)
 
-        output_path = resolve_output_path(args.save)
-        if output_path is not None:
-            saved_files = save_report(
-                target=args.target,
-                ip=ip,
-                results=results,
-                output_path=output_path,
-            )
-            logger.info(f"Saved reports: {', '.join(str(path) for path in saved_files)}")
-
-    except ResolutionError as e:
-        logger.error(str(e))
-        raise SystemExit(1) from e
-    except ValueError as e:
-        logger.error(str(e))
-        raise SystemExit(1) from e
+        log_scan_summary(logger, report)
+        save_scan_report(args, report, logger)
+    except ValueError as error:
+        logger.error(str(error))
+        raise SystemExit(1) from error
     except KeyboardInterrupt:
         logger.warning("Scan interrupted by user.")
         raise SystemExit(130)
+
+
+def validate_scan_args(args: argparse.Namespace) -> None:
+    if args.timeout <= 0:
+        raise ValueError("Timeout must be greater than 0.")
+    if args.threads <= 0:
+        raise ValueError("Threads must be greater than 0.")
+    if args.delay < 0:
+        raise ValueError("Delay cannot be negative.")
+
+
+def log_scan_start(logger, args: argparse.Namespace) -> None:
+    logger.info("Starting scan")
+    logger.info("Targets: %s", ", ".join(args.targets))
+    logger.info(
+        "Ports: %s | Threads: %s | Timeout: %.2fs | Delay: %.2fs",
+        args.ports,
+        args.threads,
+        args.timeout,
+        args.delay,
+    )
+
+
+def log_host_result(logger, host) -> None:
+    status = "alive" if host.is_alive else "unresponsive"
+    ip_value = host.ip if host.ip is not None else "unresolved"
+
+    logger.info("")
+    logger.info("Host: %s (%s)", host.target, ip_value)
+    logger.info("Status: %s | Open ports: %s", status, host.open_port_count)
+
+    if host.error:
+        logger.warning("Note: %s", host.error)
+
+    for result in host.results:
+        if result.is_open:
+            message = f"  {result.port}/tcp open {result.service_name}"
+            if result.banner:
+                message += f' | banner="{result.banner}"'
+            logger.info(message)
+        else:
+            logger.debug("  %s/tcp closed", result.port)
+
+
+def log_scan_summary(logger, report) -> None:
+    logger.info("")
+    logger.info(
+        "Summary: scanned=%s alive=%s unresponsive=%s open=%s closed=%s duration=%.2fs avg_open_alive=%.2f",
+        report.summary.total_hosts_scanned,
+        report.summary.total_hosts_alive,
+        report.summary.total_hosts_unresponsive,
+        report.summary.total_open_ports,
+        report.summary.total_closed_ports,
+        report.duration_seconds,
+        report.summary.average_open_ports_per_alive_host,
+    )
+
+
+def save_scan_report(args: argparse.Namespace, report, logger) -> None:
+    output_path = resolve_output_path(args.save)
+    if output_path is None:
+        return
+
+    try:
+        saved_files = save_report(
+            targets=args.targets,
+            hosts=report.hosts,
+            duration_seconds=report.duration_seconds,
+            scanned_at=report.scanned_at,
+            output_path=output_path,
+        )
+    except OSError as error:
+        logger.error("Failed to save report: %s", error)
+        raise SystemExit(1) from error
+
+    logger.info("Saved reports: %s", ", ".join(str(path) for path in saved_files))
 
 
 if __name__ == "__main__":

@@ -1,36 +1,43 @@
 # RECON
 
-RECON (Reconnaissance, Enumeration and Connectivity Toolkit) is a safe Python-based reconnaissance project built to demonstrate networking fundamentals, service enumeration, banner grabbing, reporting, testing, and maintainable software design.
+RECON is a small Python network enumeration tool for learning and portfolio work. It can scan a single host, a few targets, or a CIDR range while staying focused on safe information gathering.
 
 ## Features
 
-- Hostname to IPv4 resolution
-- Single and multi-port TCP scanning
-- Multithreaded scanning with `ThreadPoolExecutor`
-- Common service identification
-- Safe banner grabbing for open ports
-- JSON and TXT report generation
-- Verbose logging and graceful `Ctrl+C` handling
-- Unit tests for core behavior
+- Hostname and IPv4 target resolution
+- TCP port scanning
+- Multiple target scanning
+- CIDR subnet expansion
+- Basic host discovery
+- Service identification
+- Banner grabbing on open ports
+- JSON and TXT reports
+- Configurable timeout, threads, and delay
+- Unit tests
 
 ## Usage
 
 ```bash
-python recon.py scan localhost --ports 22,80,443,8000-8002 --timeout 1.5 --save reports/localhost_scan --verbose
+python recon.py scan localhost
 ```
 
-For a second controlled target, use a lab machine or a host you own on your local network:
+Common examples:
 
 ```bash
-python recon.py scan 192.168.1.10 --ports 22,80,443,3389 --save reports/lab_scan --verbose
+python recon.py scan 192.168.1.10 192.168.1.20 example.com --ports 22,80,443
+python recon.py scan 192.168.1.0/24 --ports 22,80,443 --threads 100 --timeout 2
+python recon.py scan scanme.nmap.org --ports 22,80,443 --save reports/scanme_test
+python recon.py scan scanme.nmap.org --ports 22,80,443 --save reports/scanme_test
 ```
 
 ## CLI Options
 
-- `scan`: Run a TCP reconnaissance scan
-- `target`: Hostname or IPv4 target
-- `--ports`: Comma-separated ports and/or ranges
+- `scan`: run a scan
+- `targets`: one or more hosts, IPs, or a CIDR range
+- `--ports`: Comma-separated ports and ranges
 - `--timeout`: Socket timeout in seconds
+- `--threads`: Maximum worker threads per host
+- `--delay`: Delay before each port probe
 - `--save`: Save report to `.json`, `.txt`, or both when no extension is provided
 - `--verbose`: Enable debug logging
 
@@ -46,12 +53,12 @@ RECON/
 `-- tests/
 ```
 
-## Safety Scope
+## Scope
 
-This project is intentionally limited to safe reconnaissance and enumeration. It does not perform vulnerability scanning, exploitation, brute forcing, malware behavior, packet injection, or OSINT collection.
+RECON is only for information gathering and enumeration. It does not do vulnerability scanning, exploitation, brute forcing, malware behavior, or packet-level attack work.
 
 ## Testing
 
 ```bash
-python -m unittest discover -s tests -v
+python -m unittest discover -s tests
 ```

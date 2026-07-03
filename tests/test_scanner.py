@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from core.scanner import parse_ports, scan_port_details, scan_ports
+from core.scanner import discover_host, parse_ports, scan_port_details, scan_ports, scan_targets
 
 
 class ParsePortsTests(unittest.TestCase):
@@ -43,3 +43,44 @@ class ScanPortsTests(unittest.TestCase):
         results = scan_ports("127.0.0.1", [443, 22], timeout=1.0, max_workers=2)
 
         self.assertEqual([item.port for item in results], [22, 443])
+
+    @patch("core.scanner.scan_port", side_effect=[False, True])
+    def test_discover_host_returns_true_when_any_probe_succeeds(self, mock_scan_port):
+        self.assertTrue(discover_host("127.0.0.1", [22, 80], timeout=1.0))
+        self.assertEqual(mock_scan_port.call_count, 2)
+
+    @patch("core.scanner.scan_target")
+    def test_scan_targets_creates_report_summary(self, mock_scan_target):
+        host_one = type(
+            "HostResult",
+            (),
+            {
+                "target": "127.0.0.1",
+                "ip": "127.0.0.1",
+                "is_alive": True,
+                "results": [type("Result", (), {"is_open": True})()],
+                "open_port_count": 1,
+                "closed_port_count": 0,
+                "error": None,
+            },
+        )()
+        host_two = type(
+            "HostResult",
+            (),
+            {
+                "target": "example.com",
+                "ip": "93.184.216.34",
+                "is_alive": False,
+                "results": [],
+                "open_port_count": 0,
+                "closed_port_count": 0,
+                "error": None,
+            },
+        )()
+        mock_scan_target.side_effect = [host_one, host_two]
+
+        report = scan_targets(["127.0.0.1", "example.com"], [80], timeout=1.0, max_workers=5)
+
+        self.assertEqual(report.summary.total_hosts_scanned, 2)
+        self.assertEqual(report.summary.total_hosts_alive, 1)
+        self.assertEqual(report.summary.total_open_ports, 1)

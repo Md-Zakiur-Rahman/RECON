@@ -1,38 +1,39 @@
 from __future__ import annotations
 
-import json
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
+from typing import Iterable
 
 from models.results import ScanReport
 
 
 def save_report(
-    target: str,
-    ip: str,
-    results,
+    targets: list[str],
+    hosts: Iterable,
+    duration_seconds: float,
+    scanned_at: datetime,
     output_path: Path,
 ) -> list[Path]:
     report = ScanReport(
-        target=target,
-        ip=ip,
-        scanned_at=datetime.now(timezone.utc),
-        results=list(results),
+        targets=targets,
+        scanned_at=scanned_at,
+        duration_seconds=duration_seconds,
+        hosts=list(hosts),
     )
 
-    if output_path.suffix.lower() == ".json":
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(report.to_json(), encoding="utf-8")
-        return [output_path]
-
-    if output_path.suffix.lower() == ".txt":
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(report.to_text(), encoding="utf-8")
-        return [output_path]
-
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    json_path = output_path.with_suffix(".json")
-    txt_path = output_path.with_suffix(".txt")
-    json_path.write_text(report.to_json(), encoding="utf-8")
-    txt_path.write_text(report.to_text(), encoding="utf-8")
+    suffix = output_path.suffix.lower()
+    if suffix == ".json":
+        return [_write_report_file(output_path, report.to_json())]
+
+    if suffix == ".txt":
+        return [_write_report_file(output_path, report.to_text())]
+
+    json_path = _write_report_file(output_path.with_suffix(".json"), report.to_json())
+    txt_path = _write_report_file(output_path.with_suffix(".txt"), report.to_text())
     return [json_path, txt_path]
+
+
+def _write_report_file(path: Path, content: str) -> Path:
+    path.write_text(content, encoding="utf-8")
+    return path
