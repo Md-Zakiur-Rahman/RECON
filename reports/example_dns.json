@@ -1,0 +1,31 @@
+{
+  "targets": [
+    "example.com"
+  ],
+  "scanned_at": "2026-09-10T17:52:20.790857+00:00",
+  "duration_seconds": 0.28142450004816055,
+  "summary": {
+    "total_hosts_scanned": 0,
+    "total_hosts_alive": 0,
+    "total_hosts_unresponsive": 0,
+    "total_open_ports": 0,
+    "total_closed_ports": 0,
+    "average_open_ports_per_alive_host": 0.0
+  },
+  "hosts": [],
+  "dns": [
+    {
+      "target": "example.com",
+      "records": {},
+      "reverse_dns": {},
+      "errors": [
+        "A: Unsupported error handling: replace",
+        "AAAA: Unsupported error handling: replace",
+        "CNAME: Unsupported error handling: replace",
+        "MX: Unsupported error handling: replace",
+        "NS: Unsupported error handling: replace",
+        "TXT: Unsupported error handling: replace"
+      ]
+    }
+  ]
+}

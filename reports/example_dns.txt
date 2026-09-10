@@ -1,0 +1,22 @@
+RECON Scan Report
+Targets: example.com
+Scanned At (UTC): 2026-09-10T17:52:20.790857+00:00
+Duration (seconds): 0.28
+Hosts Scanned: 0
+Hosts Alive: 0
+Hosts Unresponsive: 0
+Total Open Ports: 0
+Total Closed Ports: 0
+Average Open Ports Per Alive Host: 0.00
+
+Hosts:
+
+DNS:
+
+example.com
+  Error: A: Unsupported error handling: replace
+  Error: AAAA: Unsupported error handling: replace
+  Error: CNAME: Unsupported error handling: replace
+  Error: MX: Unsupported error handling: replace
+  Error: NS: Unsupported error handling: replace
+  Error: TXT: Unsupported error handling: replace

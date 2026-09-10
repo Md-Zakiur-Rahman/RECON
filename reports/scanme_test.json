@@ -1,0 +1,45 @@
+{
+  "targets": [
+    "scanme.nmap.org"
+  ],
+  "scanned_at": "2026-07-03T17:30:16.514122+00:00",
+  "duration_seconds": 1.0458654999965802,
+  "summary": {
+    "total_hosts_scanned": 1,
+    "total_hosts_alive": 1,
+    "total_hosts_unresponsive": 0,
+    "total_open_ports": 2,
+    "total_closed_ports": 1,
+    "average_open_ports_per_alive_host": 2.0
+  },
+  "hosts": [
+    {
+      "target": "scanme.nmap.org",
+      "ip": "45.33.32.156",
+      "is_alive": true,
+      "open_port_count": 2,
+      "closed_port_count": 1,
+      "error": null,
+      "results": [
+        {
+          "port": 22,
+          "is_open": true,
+          "service_name": "ssh",
+          "banner": "SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2.13"
+        },
+        {
+          "port": 80,
+          "is_open": true,
+          "service_name": "http",
+          "banner": "HTTP/1.1 200 OK | Date: Fri, 03 Jul 2026 17:30:17 GMT | Server: Apache/2.4.7 (Ubuntu) | Accept-Ranges: bytes | Vary: Accept-Encoding | Connection: close | Content-Type: text/html"
+        },
+        {
+          "port": 443,
+          "is_open": false,
+          "service_name": "https",
+          "banner": null
+        }
+      ]
+    }
+  ]
+}
