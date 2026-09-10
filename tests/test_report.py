@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from core.report import save_report
-from models.results import HostScanResult, PortScanResult, ScanReport
+from models.results import DnsEnumerationResult, HostScanResult, PortScanResult, ScanReport
 
 
 class ScanReportTests(unittest.TestCase):
@@ -74,3 +74,24 @@ class ScanReportTests(unittest.TestCase):
 
         self.assertIn("Hosts Unresponsive: 0", text_report)
         self.assertIn("Average Open Ports Per Alive Host: 1.00", text_report)
+
+    def test_dns_results_are_included_in_reports(self):
+        report = ScanReport(
+            targets=["example.com"],
+            scanned_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            duration_seconds=1.0,
+            hosts=[],
+            dns_results=[
+                DnsEnumerationResult(
+                    target="example.com",
+                    records={"A": ["93.184.216.34"]},
+                    reverse_dns={"93.184.216.34": ["example.com"]},
+                )
+            ],
+        )
+
+        payload = json.loads(report.to_json())
+
+        self.assertEqual(payload["dns"][0]["records"]["A"], ["93.184.216.34"])
+        self.assertIn("DNS:", report.to_text())
+        self.assertIn("PTR 93.184.216.34: example.com", report.to_text())

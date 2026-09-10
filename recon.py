@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 
+from core.dns import enumerate_dns_targets
 from core.report import save_report
 from core.scanner import parse_ports, scan_targets
 from utils.config import (
@@ -54,6 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Enable verbose logging",
     )
+    parser.add_argument(
+        "--dns",
+        action="store_true",
+        help="Enumerate DNS records and reverse DNS only",
+    )
     return parser
 
 
@@ -64,27 +70,42 @@ def resolve_output_path(save_value: str | None) -> Path | None:
     return Path(save_value)
 
 
+def log_dns_results(logger, report) -> None:
+    for result in report.dns_results:
+        logger.info("DNS result: %s", result.target)
+        for record_type, values in result.records.items():
+            logger.info("%s: %s", record_type, ", ".join(values))
+        for address, names in result.reverse_dns.items():
+            logger.info("PTR %s: %s", address, ", ".join(names))
+        for error in result.errors:
+            logger.warning("DNS lookup issue for %s: %s", result.target, error)
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
     logger = setup_logger(args.verbose)
 
     try:
-        ports = parse_ports(args.ports)
         validate_scan_args(args)
+        ports = parse_ports(args.ports)
 
         log_scan_start(logger, args)
-        report = scan_targets(
-            targets=args.targets,
-            ports=ports,
-            timeout=args.timeout,
-            max_workers=args.threads,
-            delay=args.delay,
-            logger=logger,
-        )
+        if args.dns:
+            report = enumerate_dns_targets(args.targets, timeout=args.timeout)
+            log_dns_results(logger, report)
+        else:
+            report = scan_targets(
+                targets=args.targets,
+                ports=ports,
+                timeout=args.timeout,
+                max_workers=args.threads,
+                delay=args.delay,
+                logger=logger,
+            )
 
-        for host in report.hosts:
-            log_host_result(logger, host)
+            for host in report.hosts:
+                log_host_result(logger, host)
 
         log_scan_summary(logger, report)
         save_scan_report(args, report, logger)
@@ -164,6 +185,7 @@ def save_scan_report(args: argparse.Namespace, report, logger) -> None:
             duration_seconds=report.duration_seconds,
             scanned_at=report.scanned_at,
             output_path=output_path,
+            dns_results=report.dns_results,
         )
     except OSError as error:
         logger.error("Failed to save report: %s", error)

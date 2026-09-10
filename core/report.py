@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
-from models.results import ScanReport
+from models.results import DnsEnumerationResult, ScanReport
 
 
 def save_report(
@@ -13,12 +13,14 @@ def save_report(
     duration_seconds: float,
     scanned_at: datetime,
     output_path: Path,
+    dns_results: Iterable[DnsEnumerationResult] = (),
 ) -> list[Path]:
     report = ScanReport(
         targets=targets,
         scanned_at=scanned_at,
         duration_seconds=duration_seconds,
         hosts=list(hosts),
+        dns_results=list(dns_results),
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

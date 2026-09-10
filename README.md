@@ -14,6 +14,7 @@ RECON is a small Python network enumeration tool for learning and portfolio work
 - JSON and TXT reports
 - Configurable timeout, threads, and delay
 - Unit tests
+- DNS enumeration and reverse DNS
 
 ## Usage
 
@@ -27,7 +28,9 @@ Common examples:
 python recon.py scan 192.168.1.10 192.168.1.20 example.com --ports 22,80,443
 python recon.py scan 192.168.1.0/24 --ports 22,80,443 --threads 100 --timeout 2
 python recon.py scan scanme.nmap.org --ports 22,80,443 --save reports/scanme_test
-python recon.py scan scanme.nmap.org --ports 22,80,443 --save reports/scanme_test
+python recon.py scan example.com --dns --save reports/example_dns
+python recon.py scan google.com --dns --save reports/google_dns --timeout 2
+python recon.py scan badssl.com --dns --save reports/badssl_dns --timeout 2
 ```
 
 ## CLI Options
@@ -40,6 +43,10 @@ python recon.py scan scanme.nmap.org --ports 22,80,443 --save reports/scanme_tes
 - `--delay`: Delay before each port probe
 - `--save`: Save report to `.json`, `.txt`, or both when no extension is provided
 - `--verbose`: Enable debug logging
+- `--dns`: Enumerate A, AAAA, CNAME, MX, NS, TXT, and reverse DNS records
+
+`scanme.nmap.org` and `badssl.com` are useful public testing targets. Only scan
+systems you own or have permission to test.
 
 ## Project Structure
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 import json
 
@@ -14,11 +14,28 @@ class PortScanResult:
 
 
 @dataclass(slots=True)
+class DnsEnumerationResult:
+    target: str
+    records: dict[str, list[str]] = field(default_factory=dict)
+    reverse_dns: dict[str, list[str]] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "target": self.target,
+            "records": self.records,
+            "reverse_dns": self.reverse_dns,
+            "errors": self.errors,
+        }
+
+
+@dataclass(slots=True)
 class ScanReport:
     targets: list[str]
     scanned_at: datetime
     duration_seconds: float
     hosts: list["HostScanResult"]
+    dns_results: list[DnsEnumerationResult] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -27,6 +44,7 @@ class ScanReport:
             "duration_seconds": self.duration_seconds,
             "summary": self.summary.to_dict(),
             "hosts": [host.to_dict() for host in self.hosts],
+            "dns": [result.to_dict() for result in self.dns_results],
         }
 
     def to_json(self) -> str:
@@ -66,6 +84,19 @@ class ScanReport:
                 if result.banner:
                     line += f' banner="{result.banner}"'
                 lines.append(line)
+
+        if self.dns_results:
+            lines.extend(["", "DNS:"])
+            for dns_result in self.dns_results:
+                lines.append(f"\n{dns_result.target}")
+                for record_type, values in dns_result.records.items():
+                    for value in values:
+                        lines.append(f"  - {record_type}: {value}")
+                for address, names in dns_result.reverse_dns.items():
+                    for name in names:
+                        lines.append(f"  - PTR {address}: {name}")
+                for error in dns_result.errors:
+                    lines.append(f"  Error: {error}")
 
         return "\n".join(lines) + "\n"
 
