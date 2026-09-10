@@ -1,0 +1,22 @@
+RECON Scan Report
+Targets: badssl.com
+Scanned At (UTC): 2026-09-10T17:53:20.259568+00:00
+Duration (seconds): 2.15
+Hosts Scanned: 0
+Hosts Alive: 0
+Hosts Unresponsive: 0
+Total Open Ports: 0
+Total Closed Ports: 0
+Average Open Ports Per Alive Host: 0.00
+
+Hosts:
+
+DNS:
+
+badssl.com
+  Error: A: timed out
+  Error: AAAA: Unsupported error handling: replace
+  Error: CNAME: Unsupported error handling: replace
+  Error: MX: Unsupported error handling: replace
+  Error: NS: Unsupported error handling: replace
+  Error: TXT: Unsupported error handling: replace

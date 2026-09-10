@@ -1,0 +1,16 @@
+RECON Scan Report
+Targets: localhost
+Scanned At (UTC): 2026-09-10T17:53:24.738117+00:00
+Duration (seconds): 0.17
+Hosts Scanned: 0
+Hosts Alive: 0
+Hosts Unresponsive: 0
+Total Open Ports: 0
+Total Closed Ports: 0
+Average Open Ports Per Alive Host: 0.00
+
+Hosts:
+
+DNS:
+
+localhost
